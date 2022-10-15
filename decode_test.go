@@ -53,7 +53,7 @@ var itemDecodeOnlyTests = []struct {
 	},
 }
 
-func testUnmarshalAsymmetric(t *testing.T) {
+func TestUnmarshalAsymmetric(t *testing.T) {
 	for _, tc := range itemDecodeOnlyTests {
 		rv := reflect.New(reflect.TypeOf(tc.expect))
 		expect := rv.Interface()
