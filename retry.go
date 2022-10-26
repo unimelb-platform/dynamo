@@ -1,10 +1,12 @@
 package dynamo
 
 import (
+	"errors"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/smithy-go"
+	"github.com/aws/smithy-go/transport/http"
 	"github.com/cenkalti/backoff"
 	"golang.org/x/net/context"
 )
@@ -47,15 +49,19 @@ func retry(ctx aws.Context, f func() error) error {
 }
 
 func canRetry(err error) bool {
-	if ae, ok := err.(awserr.RequestFailure); ok {
-		switch ae.StatusCode() {
+	var resErr *http.ResponseError
+	if errors.As(err, &resErr) {
+		switch resErr.HTTPStatusCode() {
 		case 500, 503:
 			return true
 		case 400:
-			switch ae.Code() {
-			case "ProvisionedThroughputExceededException",
-				"ThrottlingException":
-				return true
+			var apiErr smithy.APIError
+			if errors.As(err, &apiErr) {
+				switch apiErr.ErrorCode() {
+				case "ProvisionedThroughputExceededException",
+					"ThrottlingException":
+					return true
+				}
 			}
 		}
 	}

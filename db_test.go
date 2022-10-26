@@ -2,13 +2,14 @@ package dynamo
 
 import (
 	"context"
+	"errors"
 	"os"
 	"testing"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
-	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/smithy-go"
 )
 
 var (
@@ -65,8 +66,9 @@ type widget struct {
 }
 
 func isConditionalCheckErr(err error) bool {
-	if ae, ok := err.(awserr.RequestFailure); ok {
-		return ae.Code() == "ConditionalCheckFailedException"
+	var apiErr smithy.APIError
+	if errors.As(err, &apiErr) {
+		return apiErr.ErrorCode() == "ConditionalCheckFailedException"
 	}
 	return false
 }
