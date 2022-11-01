@@ -1,6 +1,7 @@
 package dynamo
 
 import (
+	"context"
 	"errors"
 	"time"
 
@@ -8,7 +9,6 @@ import (
 	"github.com/aws/smithy-go"
 	"github.com/aws/smithy-go/transport/http"
 	"github.com/cenkalti/backoff"
-	"golang.org/x/net/context"
 )
 
 // RetryTimeout defines the maximum amount of time that requests will
